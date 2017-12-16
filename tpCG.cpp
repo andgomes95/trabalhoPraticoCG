@@ -10,16 +10,46 @@ GLfloat xRotated , yRotated, zRotated,move;
 GLint salto,agacha;
 GLfloat direction;
 GLdouble size=1; 
+GLint flag =0;
+void colisaoBaixo(float bonecoY){
+    if(bonecoY < 0.5){
+        printf ("aaaaaaaaaaaa");
+        flag=1;
+    }
+}
+void barraHorizontal(){
+    glPushMatrix();
+    glColor3f(0.36, 0.2, 0.09); 
+    //glRotatef(xRotated,1.0,0.0,0.0);
+    //glRotatef(yRotated,0.0,1.0,0.0);
+    glScalef(0.5,0.5,10.0);
+    GLUquadricObj *Cylinder; // Create pointer for our cylinder
+    Cylinder = gluNewQuadric();
+    gluCylinder( Cylinder, 0.1, 0.1, 0.1, 50, 50 );
+    glPopMatrix();
+}
+void barraVertical(){
+    glPushMatrix();
+    glColor3f(0.36, 0.2, 0.09); 
+    //glRotatef(xRotated,1.0,0.0,0.0);
+    //glRotatef(yRotated,0.0,1.0,0.0);
+    glRotatef(-90,1.0,0.0,0.0);
+    glScalef(0.5,0.5,5.0);
+    GLUquadricObj *Cylinder; // Create pointer for our cylinder
+    Cylinder = gluNewQuadric();
+    gluCylinder( Cylinder, 0.1, 0.1, 0.1, 50, 50 );
+    glPopMatrix();
+}
 void saltoFunc(){
     if(salto == 1){
-        if(move < 1.0){
+        if(move < 0.5){
             move+=0.001;
             glTranslatef(0.0,move,0.0);
         }else{
             salto = 0;
         }
     }else if(agacha == 1){
-        if(move > -0.4){
+        if(move > -0.5){
             move-=0.001;
             glTranslatef(0.0,move,0.0);
         }else{
@@ -91,10 +121,22 @@ void barreiraChao(float position){
     glColor3f(0.0, 0.2, 0.9); 
     glRotatef(xRotated,1.0,0.0,0.0);
     glRotatef(yRotated,0.0,1.0,0.0);
-    glScalef(0.3,0.5,3.0);
-    glTranslatef(direction-position,0.25,0.0);
-    glutSolidCube(1.0f);
+    glScalef(0.3,1.0,3.5);
+    glTranslatef(direction-position,0.0,-0.5);   
+    glRotatef(yRotated,0.0,1.0,0.0);
+    glPushMatrix();
+    barraHorizontal();
+    glTranslatef(0.0,0.2,0.0);
+    barraHorizontal();
+    glTranslatef(0.0,-0.4,0.1);
+    barraVertical();
+    glTranslatef(0.0,0.0,0.8);
+    barraVertical();
     glPopMatrix();
+    glPopMatrix();
+    if(direction-position == 0){
+        colisaoBaixo(move);
+    }
 }
 void barreiraAlto(float position){
     glPushMatrix();
@@ -112,6 +154,7 @@ void body(){
     glRotatef(xRotated,1.0,0.0,0.0);
     glRotatef(yRotated,0.0,1.0,0.0);
     glScalef(0.3,5.0,3.0);
+    glTranslatef(0.0,0.0,-1.0);   
     saltoFunc();
     glutSolidCube(1.0f);
     glPopMatrix();
@@ -123,12 +166,9 @@ void display(void){
     glLoadIdentity();
     glTranslatef(0.0,0.0,-10.0);
     estrada();
-    barreiraChao(100.0);
-    barreiraAlto(150.0);
-    barreiraChao(200.0);
-     body();
-    barreiraAlto(120.0);
-
+    body();
+    glColor3f(1.0f,1.0f,0.0);
+    glutSolidCube(1000.0-direction);
     glFlush();        
 }
 void keyPressed(unsigned char key, int x, int y) {
@@ -157,8 +197,12 @@ void idleFunc(void){
      xRotated += 0.0;
      yRotated += 0.0;
      zRotated += 0.0;
-     direction -= 0.025;
+     if(flag == 0){
+        direction -= 0.025;
+    
+    }
     display();
+
 }
 
 
