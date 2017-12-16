@@ -12,7 +12,13 @@ GLfloat direction;
 GLdouble size=1; 
 GLint flag =0;
 void colisaoBaixo(float bonecoY){
-    if(bonecoY < 0.5){
+    if(bonecoY < 0.2){
+        printf ("aaaaaaaaaaaa");
+        flag=1;
+    }
+}
+void colisaoAlto(float bonecoY){
+    if(bonecoY > -0.2){
         printf ("aaaaaaaaaaaa");
         flag=1;
     }
@@ -134,7 +140,8 @@ void barreiraChao(float position){
     barraVertical();
     glPopMatrix();
     glPopMatrix();
-    if(direction-position == 0){
+    printf("%f\t",direction-position);
+    if(direction-position > -4.525 && direction-position < -4.425){
         colisaoBaixo(move);
     }
 }
@@ -147,6 +154,9 @@ void barreiraAlto(float position){
     glTranslatef(direction-position,4.0,0.0);
     glutSolidCube(1.0f);
     glPopMatrix();
+    if(direction-position > -4.525 && direction-position < -4.425){
+        colisaoAlto(move);
+    }
 }
 void body(){
     glPushMatrix();
@@ -166,7 +176,11 @@ void display(void){
     glLoadIdentity();
     glTranslatef(0.0,0.0,-10.0);
     estrada();
+    //barreiraChao(150.0);
     body();
+    barreiraAlto(100.0);
+    printf("%f\n",move);
+    //barreiraAlto(150.0);
     glColor3f(1.0f,1.0f,0.0);
     glutSolidCube(1000.0-direction);
     glFlush();        
