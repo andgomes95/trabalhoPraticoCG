@@ -3,23 +3,23 @@
 #include <GL/glu.h> // Header File For The GLu32 Library
 #include <unistd.h> 
 #include <stdio.h>
+#include <time.h>
 #define ESCAPE 27 //Valor em ASCII do Esc
 int window;
 
 GLfloat xRotated , yRotated, zRotated,move;
+float *vetposicao;
 GLint salto,agacha;
 GLfloat direction;
 GLdouble size=1; 
 GLint flag =0;
 void colisaoBaixo(float bonecoY){
     if(bonecoY < 0.2){
-        printf ("aaaaaaaaaaaa");
         flag=1;
     }
 }
 void colisaoAlto(float bonecoY){
     if(bonecoY > -0.2){
-        printf ("aaaaaaaaaaaa");
         flag=1;
     }
 }
@@ -140,7 +140,6 @@ void barreiraChao(float position){
     barraVertical();
     glPopMatrix();
     glPopMatrix();
-    printf("%f\t",direction-position);
     if(direction-position > -4.525 && direction-position < -4.425){
         colisaoBaixo(move);
     }
@@ -169,20 +168,50 @@ void body(){
     glutSolidCube(1.0f);
     glPopMatrix();
 }
-
-void display(void){
+float * geraPosicao(){
+    float *posicao = (float*)malloc(100* sizeof(float));
+    for (int i = 0; i < 100; i++){
+        posicao[i] = (float)(rand()%160);
+        printf("%f\t",posicao[i]);
+    }
+    printf("\n");
+    return posicao;
+}
+void displayInit(){
     glMatrixMode(GL_MODELVIEW);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+    vetposicao = geraPosicao();
+    glTranslatef(0.0,0.0,-10.0);
+    estrada();
+    for(int i = 0;i<50;i++){
+        barreiraChao(-vetposicao[i]*20);
+    }
+    body();
+    for(int i = 50;i<100;i++){
+        barreiraAlto(-vetposicao[i]*20);
+    }
+    glFlush();        
+}
+void display(void){
+        glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
     glTranslatef(0.0,0.0,-10.0);
     estrada();
-    //barreiraChao(150.0);
+    for(int i = 0;i<50;i++){
+
+        if(direction+vetposicao[i] < 50.0 && direction+vetposicao[i] > -50.0){
+            barreiraChao(-vetposicao[i]*20);
+        }
+    }
     body();
-    barreiraAlto(100.0);
-    printf("%f\n",move);
+    for(int i = 50;i<100;i++){
+        if(direction-vetposicao[i] < 50.0 && direction-vetposicao[i] > -50.0){
+            barreiraAlto(-vetposicao[i]*20);
+        }
+    }
     //barreiraAlto(150.0);
-    glColor3f(1.0f,1.0f,0.0);
-    glutSolidCube(1000.0-direction);
     glFlush();        
 }
 void keyPressed(unsigned char key, int x, int y) {
@@ -212,7 +241,7 @@ void idleFunc(void){
      yRotated += 0.0;
      zRotated += 0.0;
      if(flag == 0){
-        direction -= 0.025;
+        direction -= 0.05;
     
     }
     display();
@@ -227,12 +256,12 @@ int main (int argc, char **argv){
     glutCreateWindow("Games");
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     xRotated = yRotated = zRotated = 30.0;
-    direction = 200.0;
+    direction = 5.0;
     move=0.0;
     salto = 0;
     agacha = 0;
     glClearColor(0.0,0.0,0.0,0.0);
-    glutDisplayFunc(display);
+    glutDisplayFunc(displayInit);
     glutReshapeFunc(reshapeFunc);
     glutIdleFunc(idleFunc);
     glutKeyboardFunc(&keyPressed);
