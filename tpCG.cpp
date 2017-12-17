@@ -13,6 +13,32 @@ GLint salto,agacha;
 GLfloat direction;
 GLdouble size=1; 
 GLint flag =0;
+void pagina(){
+    glPushMatrix();
+    glColor3f(1.0, 1.0, 1.0); 
+    glScalef(1.0,0.25,2.0);
+    glutSolidCube(1.0f);
+
+    glPopMatrix();
+}
+void capaLivro(float locate){
+    glPushMatrix();
+    glColor3f(0.0, 0.2, 0.9); 
+    glScalef(1.0,0.05,2.0);
+    glTranslatef(0.0,locate,0.0);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+
+}
+void capaLivro2(float locate){
+    glPushMatrix();
+    glColor3f(0.0, 0.2, 0.45); 
+    glScalef(0.75,0.05,1.5);
+    glTranslatef(0.0,locate,0.0);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+
+}
 void colisaoBaixo(float bonecoY){
     if(bonecoY < 0.2){
         flag=1;
@@ -152,11 +178,14 @@ void barreiraAlto(float position){
     glColor3f(0.0, 0.2, 0.9); 
     glRotatef(xRotated,1.0,0.0,0.0);
     glRotatef(yRotated,0.0,1.0,0.0);
-    glScalef(0.3,0.5,3.0);
-    glTranslatef(direction-position,4.0,0.0);
-    glutSolidCube(1.0f);
+    glTranslatef(direction-position,2.0,0.0);
+    capaLivro2(-3.0);
+    capaLivro(-3.0);
+    pagina();
+    capaLivro(3.0);
+    capaLivro2(3.0);
     glPopMatrix();
-    if(direction-position > -4.525 && direction-position < -4.425){
+    if(direction-position > -1.825 && direction-position < -1.725){
         colisaoAlto(move);
     }
 }
@@ -199,14 +228,17 @@ void display(void){
     body();
     for(int i = 0;i<100;i++){
         if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
-            if(vetposicao[i]==0){            
+            if(vetposicao[i]==0){     
+            	printf("oioi\n");       
                 barreiraAlto(-i*40);
-            }else{
+            }
+            else{
                 barreiraChao(-i*40);
             }
 
         }
     }
+  	//barreiraAlto(0);
     glFlush();        
 }
 void keyPressed(unsigned char key, int x, int y) {
@@ -218,7 +250,7 @@ void keyPressed(unsigned char key, int x, int y) {
         xRotated++;
     }else if(key == 115){
         yRotated++;
-    }else if(key == 108){
+    }else if(key == 110){
         salto = 1;
     }else if(key == 109){
         agacha = 1;
