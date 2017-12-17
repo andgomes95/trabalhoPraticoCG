@@ -33,6 +33,64 @@ int LoadGLTextures() // Load Bitmaps And Convert To Textures
  
     return 1;                                        // Return Success
 }
+void InitGL(int Width, int Height){          // We call this right after our OpenGL window is created.{
+    LoadGLTextures();               // Load The Texture(s) 
+    glClearDepth(1.0);        // Enables Clearing Of The Depth Buffer
+    glDepthFunc(GL_LESS);             // The Type Of Depth Test To Do
+    glEnable(GL_DEPTH_TEST);            // Enables Depth Testing     
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-10,10,-((GLfloat)Width/(GLfloat)Height) * 10,((GLfloat)Width/(GLfloat)Height) * 10, 0, 10);
+    //gluPerspective(45.0f,(GLfloat)Width/(GLfloat)Height,0.01f,100.0f);
+    glMatrixMode(GL_MODELVIEW);
+}
+void drawfinal(){
+   glEnable(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, texture[0]);   // choose the texture to use.
+    glTranslatef(0.0f,0.0f,-10.0f);              // move 5 units into the screen.
+
+    glBegin(GL_QUADS);
+
+    // Front Face (note that the texture's corners have to match the quad's corners)
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f, -10.0f,  1.0f); // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f( 10.0f, -10.0f,  1.0f); // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 10.0f,  10.0f,  1.0f); // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f,  10.0f,  1.0f); // Top Left Of The Texture and Quad
+    
+    // Back Face
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-10.0f, -10.0f, -1.0f);    // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f,  10.0f, -1.0f);    // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( 10.0f,  10.0f, -1.0f);    // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( 10.0f, -10.0f, -1.0f);    // Bottom Left Of The Texture and Quad
+    
+    // Top Face
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f,  10.0f, -1.0f);    // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f,  10.0f,  1.0f);    // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f( 10.0f,  10.0f,  1.0f);    // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 10.0f,  10.0f, -1.0f);    // Top Right Of The Texture and Quad
+    
+    // Bottom Face       
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f, -10.0f, -1.0f);    // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( 10.0f, -10.0f, -1.0f);    // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( 10.0f, -10.0f,  1.0f);    // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-10.0f, -10.0f,  1.0f);    // Bottom Right Of The Texture and Quad
+    
+    // Right face
+    glTexCoord2f(1.0f, 0.0f); glVertex3f( 10.0f, -10.0f, -1.0f);    // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 10.0f,  10.0f, -1.0f);    // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( 10.0f,  10.0f,  1.0f);    // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( 10.0f, -10.0f,  1.0f);    // Bottom Left Of The Texture and Quad
+    
+    // Left Face
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f, -10.0f, -1.0f); // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-10.0f, -10.0f,  1.0f); // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f,  10.0f,  1.0f); // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f,  10.0f, -1.0f); // Top Left Of The Texture and Quad
+
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+}
 
 void pagina(){
     glPushMatrix();
@@ -132,7 +190,6 @@ void Inicializa (void){
     GLint especMaterial = 60;
 
     // Especifica que a cor de fundo da janela será preta
-    glClearColor(0.2f, 0.2f, 0.6f, 1.0f);
 
     // Habilita o modelo de colorização de Gouraud
     glShadeModel(GL_SMOOTH);
@@ -231,6 +288,7 @@ void displayInit(){
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
+    drawfinal();
     vetposicao = geraPosicao();
     glTranslatef(0.0,0.0,-10.0);
     estrada();
@@ -241,7 +299,8 @@ void display(void){
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(0.0,0.0,-10.0);
+    glColor3f(1.0f,1.0f,1.0f);
+    drawfinal();
     estrada();
     body();
     for(int i = 0;i<100;i++){
@@ -255,7 +314,7 @@ void display(void){
 
         }
     }
-  	//barreiraAlto(0);
+  	//barreiraAlto(0);*/
     glFlush();        
 }
 void keyPressed(unsigned char key, int x, int y) {
@@ -293,18 +352,18 @@ void idleFunc(void){
 int main (int argc, char **argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);  
-    glutInitWindowSize(800,600);
-    glutCreateWindow("Games");
+    glutInitWindowSize(600,600);
+    glutCreateWindow("TUPBOY SIMULATOR");
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     xRotated = yRotated = zRotated = 30.0;
     direction = 10.0;
     move=0.0;
     salto = 0;
     agacha = 0;
-    glClearColor(0.0,0.0,0.0,0.0);
     glutDisplayFunc(displayInit);
     glutReshapeFunc(reshapeFunc);
     glutIdleFunc(idleFunc);
+    InitGL(600,600);
     glutKeyboardFunc(&keyPressed);
     Inicializa();
     glutMainLoop();
