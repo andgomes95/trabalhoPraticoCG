@@ -3,16 +3,37 @@
 #include <GL/glu.h> // Header File For The GLu32 Library
 #include <unistd.h> 
 #include <stdio.h>
+#include "SOIL.h"
 #include <time.h>
 #define ESCAPE 27 //Valor em ASCII do Esc
 int window;
-
-GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.005;
+int texture[2];
+GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.001;
 float *vetposicao;
 GLint salto,agacha;
 GLfloat direction;
 GLdouble size=1; 
 GLint flag =0;
+int LoadGLTextures() // Load Bitmaps And Convert To Textures
+{
+    /* load an image file directly as a new OpenGL texture */
+    texture[0] = SOIL_load_OGL_texture
+        (
+        "media/text.bmp",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_INVERT_Y
+        );
+ 
+    if(texture[0] == 0)
+        return 0;
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+ 
+    return 1;                                        // Return Success
+}
+
 void pagina(){
     glPushMatrix();
     glColor3f(1.0, 1.0, 1.0); 
@@ -28,7 +49,6 @@ void capaLivro(float locate){
     glTranslatef(0.0,locate,0.0);
     glutSolidCube(1.0f);
     glPopMatrix();
-
 }
 void capaLivro2(float locate){
     glPushMatrix();
@@ -37,7 +57,6 @@ void capaLivro2(float locate){
     glTranslatef(0.0,locate,0.0);
     glutSolidCube(1.0f);
     glPopMatrix();
-
 }
 void colisaoBaixo(float bonecoY){
     if(bonecoY < 0.2){
@@ -141,7 +160,6 @@ void Inicializa (void){
     // Habilita o depth-buffering
     glEnable(GL_DEPTH_TEST);
 }
-
 void estrada(){
     glPushMatrix();
     glColor3f(0.4, 0.2, 0.5); 
@@ -228,8 +246,7 @@ void display(void){
     body();
     for(int i = 0;i<100;i++){
         if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
-            if(vetposicao[i]==0){     
-            	printf("oioi\n");       
+            if(vetposicao[i]==0){       
                 barreiraAlto(-i*40);
             }
             else{
@@ -264,18 +281,15 @@ void reshapeFunc(int x, int y){
     glViewport(0,0,x,y);  
 }
 void idleFunc(void){
-     xRotated += 0.0;
-     yRotated += 0.0;
-     zRotated += 0.0;
-     if(flag == 0){
-        direction -= 0.05;
-    
+    xRotated += 0.0;
+    yRotated += 0.0;
+    zRotated += 0.0;
+    if(flag == 0){
+        int value = rand()%30;
+        direction -= 0.001*(float)value;
     }
     display();
-
 }
-
-
 int main (int argc, char **argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);  
