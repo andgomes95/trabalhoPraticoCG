@@ -7,7 +7,7 @@
 #define ESCAPE 27 //Valor em ASCII do Esc
 int window;
 
-GLfloat xRotated , yRotated, zRotated,move;
+GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.005;
 float *vetposicao;
 GLint salto,agacha;
 GLfloat direction;
@@ -49,27 +49,30 @@ void barraVertical(){
 void saltoFunc(){
     if(salto == 1){
         if(move < 0.5){
-            move+=0.001;
+            move+=flagSalto;
             glTranslatef(0.0,move,0.0);
         }else{
             salto = 0;
         }
     }else if(agacha == 1){
         if(move > -0.5){
-            move-=0.001;
+            move-=flagSalto;
             glTranslatef(0.0,move,0.0);
         }else{
             agacha = 0;
         }
-    }else if (move < 0.0){
+    }else if (move < 0.005){
         if(move < 0.0){
             glTranslatef(0.0,move,0.0);
-            move+=0.001;
+            move+=flagSalto;
         }
     }else{
-        if(move > 0.0){
+        if(move > -0.005){
             glTranslatef(0.0,move,0.0);
-            move-=0.001;
+            move-=flagSalto;
+        }else if (move < 0.005){
+            move= 0.0;
+            glTranslatef(0.0,move,0.0);
         }
     }
 }
@@ -171,8 +174,8 @@ void body(){
 float * geraPosicao(){
     float *posicao = (float*)malloc(100* sizeof(float));
     for (int i = 0; i < 100; i++){
-        posicao[i] = (float)(rand()%160);
-        printf("%f\t",posicao[i]);
+        posicao[i] = rand()%2;;//(float)(rand()%160);
+        //printf("%f\t",posicao[i]);
     }
     printf("\n");
     return posicao;
@@ -184,34 +187,26 @@ void displayInit(){
     vetposicao = geraPosicao();
     glTranslatef(0.0,0.0,-10.0);
     estrada();
-    for(int i = 0;i<50;i++){
-        barreiraChao(-vetposicao[i]*20);
-    }
     body();
-    for(int i = 50;i<100;i++){
-        barreiraAlto(-vetposicao[i]*20);
-    }
     glFlush();        
 }
 void display(void){
-        glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
     glTranslatef(0.0,0.0,-10.0);
     estrada();
-    for(int i = 0;i<50;i++){
-
-        if(direction+vetposicao[i] < 50.0 && direction+vetposicao[i] > -50.0){
-            barreiraChao(-vetposicao[i]*20);
-        }
-    }
     body();
-    for(int i = 50;i<100;i++){
-        if(direction-vetposicao[i] < 50.0 && direction-vetposicao[i] > -50.0){
-            barreiraAlto(-vetposicao[i]*20);
+    for(int i = 0;i<100;i++){
+        if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
+            if(vetposicao[i]==0){            
+                barreiraAlto(-i*40);
+            }else{
+                barreiraChao(-i*40);
+            }
+
         }
     }
-    //barreiraAlto(150.0);
     glFlush();        
 }
 void keyPressed(unsigned char key, int x, int y) {
@@ -256,7 +251,7 @@ int main (int argc, char **argv){
     glutCreateWindow("Games");
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     xRotated = yRotated = zRotated = 30.0;
-    direction = 5.0;
+    direction = 10.0;
     move=0.0;
     salto = 0;
     agacha = 0;
