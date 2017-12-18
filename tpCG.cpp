@@ -9,12 +9,104 @@
 #define QTDOBJ 100
 int window;
 int texture[2];
-GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.001;
+GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.001,x;
 float *vetposicao;
-GLint salto,agacha;
+GLint salto,agacha,q;
 GLfloat direction;
 GLdouble size=1; 
 GLint flag =0;
+void drawBody(){
+    glPushMatrix();
+    glColor3f(1.0f,1.0f,0.0f);
+    glScalef(1.0f,1.5f,0.3f);
+    glutSolidCube(1.0f);
+   glPopMatrix();
+}
+void drawShoulder(){
+    glPushMatrix();
+    glColor3f(1.0f,0.5f,0.25f);
+    glScalef(0.15f,0.25f,0.15f);
+    glRotatef(90,-1.0f,0.0f,0.0f);
+    glutSolidCone(1.0f,1.0f,10,10);
+    glPopMatrix();
+}
+void anteHuge(){
+    glPushMatrix();
+    glColor3f(1.0f,1.0f,1.0f);
+    glScalef(0.10f,0.5f,0.15f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+}
+void huge(){
+    glTranslatef(0.0,-0.1f,0.0);
+    anteHuge();
+  glTranslatef(0.0,-0.3f,0.0);
+    glPushMatrix();
+    glColor3f(0.5f,1.0f,0.5f);
+    glScalef(0.045f,0.045f,0.045f);
+    glutSolidSphere(1.0f,10,10);
+    glPopMatrix();
+    glTranslatef(0.0,-0.25f,0.0);
+    anteHuge();
+}
+void hand(){
+    glPushMatrix();
+    glColor3f(0.5f,1.0f,1.0f);
+    glScalef(0.15f,0.15f,0.15f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+}
+void drawHuge(){
+   drawShoulder();
+    glTranslatef(0.0,-0.11f,0.0);
+    huge();
+    glTranslatef(0.0,-0.2f,0.0);
+    hand();
+}
+void drawLegDeslocated(GLfloat x){
+    glTranslatef(x,0.0,0.0);
+    glPushMatrix();
+    anteHuge();
+    glTranslatef(0.0,-0.3f,0.0);
+    glPushMatrix();
+    glColor3f(0.5f,1.0f,0.5f);
+    glScalef(0.075f,0.075f,0.075f);
+    glutSolidSphere(1.0f,10,10);
+    glPopMatrix();
+    glTranslatef(0.25,0.0,0.0);
+    glRotatef(90,0,0,1);
+    anteHuge();
+    glTranslatef(0.00f,-0.2f,0.0);
+  //  glTranslatef(0.2f,0.0,0.0);
+    hand();
+    glPopMatrix();
+}
+
+void drawLeg(){
+    huge();
+    glTranslatef(0.0,-0.2f,0.0);
+    hand();
+}
+void putHuges(){
+    glPushMatrix();
+    glTranslatef(-0.6f,0.0f,-0.01f);
+   drawHuge();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0.6f,0.0f,-0.01f);
+    drawHuge();
+    glPopMatrix();
+}
+void putLegs(){
+    glPushMatrix();
+    glTranslatef(-0.3f,-1.6f,-0.01f);
+    drawLeg();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0.3f,-1.6f,-0.01f);
+    drawLeg();
+    glPopMatrix();
+}
 int LoadGLTextures() // Load Bitmaps And Convert To Textures
 {
     /* load an image file directly as a new OpenGL texture */
@@ -159,6 +251,7 @@ void saltoFunc(){
             move+=flagSalto;
             glTranslatef(0.0,move,0.0);
         }else{
+            q = 0;
             salto = 0;
         }
     }else if(agacha == 1){
@@ -166,6 +259,7 @@ void saltoFunc(){
             move-=flagSalto;
             glTranslatef(0.0,move,0.0);
         }else{
+            q = 0;
             agacha = 0;
         }
     }else if (move < 0.005){
@@ -283,13 +377,37 @@ void barreiraAlto(float position){
 }
 void body(){
     glPushMatrix();
-    glColor3f(0.6, 0.2, 0.9); 
-    glRotatef(xRotated,1.0,0.0,0.0);
-    glRotatef(yRotated,0.0,1.0,0.0);
-    glScalef(0.3,5.0,3.0);
-    glTranslatef(0.0,0.0,-1.0);   
-    saltoFunc();
-    glutSolidCube(1.0f);
+    if(q == 0 && agacha != 1){
+        glRotatef(xRotated,1.0,0.0,0.0);
+        glRotatef(yRotated+90.0,0.0,1.0,0.0);
+        glTranslatef(0.0,1.7,-1.0);   
+        saltoFunc();
+        drawBody();
+        putHuges();
+        glTranslatef(0.0,0.5,0.0); 
+        putLegs(); 
+    }else if (agacha == 1){
+        glRotatef(zRotated,0.0,0.0,1.0);
+        glRotatef(xRotated,1.0,0.0,0.0);
+        glRotatef(yRotated+90.0,0.0,1.0,0.0);
+        glTranslatef(0.0,1.7,-1.0);   
+        saltoFunc();
+       drawBody();
+        putHuges();
+        glTranslatef(0.0,-1.2,0.0); 
+        drawLegDeslocated(0.25);
+        drawLegDeslocated(-0.25);
+    }else{
+        glRotatef(xRotated,1.0,0.0,0.0);
+        glRotatef(yRotated+90.0,0.0,1.0,0.0);
+        glTranslatef(0.0,1.7,-1.0);   
+        saltoFunc();
+        drawBody();
+        putHuges();
+        glTranslatef(0.0,-1.2,0.0); 
+        drawLegDeslocated(0.25);
+        drawLegDeslocated(-0.25);
+    }
     glPopMatrix();
 }
 float * geraPosicao(){
@@ -355,8 +473,10 @@ void keyPressed(unsigned char key, int x, int y) {
     }else if(key == 115){
         yRotated++;
     }else if(key == 110){
+        q = 1;
         salto = 1;
     }else if(key == 109){
+        q = 1;
         agacha = 1;
     }
 }
@@ -388,6 +508,7 @@ int main (int argc, char **argv){
     move=0.0;
     salto = 0;
     agacha = 0;
+    q = 0;
     glutDisplayFunc(displayInit);
     glutReshapeFunc(reshapeFunc);
     glutIdleFunc(idleFunc);
