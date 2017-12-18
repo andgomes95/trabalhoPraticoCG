@@ -7,9 +7,11 @@
 #include <time.h>
 #define ESCAPE 27 //Valor em ASCII do Esc
 #define QTDOBJ 5
+#define FLAGSALTO 0.0005
+#define VELOCIDADE 1
 int window;
 int texture[5];
-GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.001,x;
+GLfloat xRotated , yRotated, zRotated,move,x;
 float *vetposicao;
 GLint salto,agacha,q;
 GLfloat direction;
@@ -130,7 +132,7 @@ int LoadGLTextures() // Load Bitmaps And Convert To Textures
         return 0;
     texture[2] = SOIL_load_OGL_texture
         (
-        "media/guit.bmp",
+        "media/samuel.bmp",
         SOIL_LOAD_AUTO,
         SOIL_CREATE_NEW_ID,
         SOIL_FLAG_INVERT_Y
@@ -246,9 +248,7 @@ void barraHorizontal(){
     //glRotatef(xRotated,1.0,0.0,0.0);
     //glRotatef(yRotated,0.0,1.0,0.0);
     glScalef(0.5,0.5,10.0);
-    GLUquadricObj *Cylinder; // Create pointer for our cylinder
-    Cylinder = gluNewQuadric();
-    gluCylinder( Cylinder, 0.1, 0.1, 0.1, 50, 50 );
+    glutSolidCube(1.0f);
     glPopMatrix();
 }
 void barraVertical(){
@@ -257,16 +257,14 @@ void barraVertical(){
     //glRotatef(xRotated,1.0,0.0,0.0);
     //glRotatef(yRotated,0.0,1.0,0.0);
     glRotatef(-90,1.0,0.0,0.0);
-    glScalef(0.5,0.5,5.0);
-    GLUquadricObj *Cylinder; // Create pointer for our cylinder
-    Cylinder = gluNewQuadric();
-    gluCylinder( Cylinder, 0.1, 0.1, 0.1, 50, 50 );
+    glScalef(0.5,0.5,1.0);
+    glutSolidCube(1.0f);
     glPopMatrix();
 }
 void saltoFunc(){
     if(salto == 1){
         if(move < 0.5){
-            move+=flagSalto;
+            move+=FLAGSALTO;
             glTranslatef(0.0,move,0.0);
         }else{
             q = 0;
@@ -274,7 +272,7 @@ void saltoFunc(){
         }
     }else if(agacha == 1){
         if(move > -0.5){
-            move-=flagSalto;
+            move-=FLAGSALTO;
             glTranslatef(0.0,move,0.0);
         }else{
             q = 0;
@@ -283,12 +281,12 @@ void saltoFunc(){
     }else if (move < 0.005){
         if(move < 0.0){
             glTranslatef(0.0,move,0.0);
-            move+=flagSalto;
+            move+=FLAGSALTO;
         }
     }else{
         if(move > -0.005){
             glTranslatef(0.0,move,0.0);
-            move-=flagSalto;
+            move-=FLAGSALTO;
         }else if (move < 0.005){
             move= 0.0;
             glTranslatef(0.0,move,0.0);
@@ -460,7 +458,7 @@ void display(void){
         estrada();
         body();
         for(i = 0;i<QTDOBJ;i++){
-            if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
+            if(direction+i*40 < 15.0 && direction+i*40 > -30.0){
                 if(vetposicao[i]==0){       
                     barreiraAlto(-i*40);
                 }
@@ -470,7 +468,7 @@ void display(void){
 
             }
         }
-        if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
+        if(direction+i*40 < 15.0 && direction+i*40 > -30.0){
             barreiraFim(-i*40);
         }
     }else if (flag == 1){
@@ -484,7 +482,6 @@ void display(void){
         glColor3f(1.0f,1.0f,1.0f);
         drawfinal(1);
     }
-  	//barreiraAlto(0);*/
     glFlush();        
 }
 void keyPressed(unsigned char key, int x, int y) {
@@ -516,8 +513,7 @@ void idleFunc(void){
     yRotated += 0.0;
     zRotated += 0.0;
     if(flag == 0){
-        int value = rand()%30;
-        direction -= 0.001*(float)value;
+        direction -= 0.005*VELOCIDADE;
     }
     display();
 }
@@ -528,7 +524,7 @@ int main (int argc, char **argv){
     glutCreateWindow("TUPBOY SIMULATOR");
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     xRotated = yRotated = zRotated = 30.0;
-    direction = 10.0;
+    direction = 20.0;
     move=0.0;
     salto = 0;
     agacha = 0;
