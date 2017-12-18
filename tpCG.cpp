@@ -3,16 +3,129 @@
 #include <GL/glu.h> // Header File For The GLu32 Library
 #include <unistd.h> 
 #include <stdio.h>
+#include "SOIL.h"
 #include <time.h>
 #define ESCAPE 27 //Valor em ASCII do Esc
 int window;
-
-GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.005;
+int texture[2];
+GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.001,x;
 float *vetposicao;
-GLint salto,agacha;
+GLint salto,agacha, q;
 GLfloat direction;
 GLdouble size=1; 
 GLint flag =0;
+void drawBody(){
+    glPushMatrix();
+    glColor3f(1.0f,1.0f,0.0f);
+    glScalef(1.0f,1.5f,0.3f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+}
+void drawShoulder(){
+    glPushMatrix();
+    glColor3f(1.0f,0.5f,0.25f);
+    glScalef(0.15f,0.25f,0.15f);
+    glRotatef(90,-1.0f,0.0f,0.0f);
+    glutSolidCone(1.0f,1.0f,10,10);
+    glPopMatrix();
+}
+void anteHuge(){
+    glPushMatrix();
+    glColor3f(1.0f,1.0f,1.0f);
+    glScalef(0.10f,0.5f,0.15f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+}
+void huge(){
+    glTranslatef(0.0,-0.1f,0.0);
+    anteHuge();
+  glTranslatef(0.0,-0.3f,0.0);
+    glPushMatrix();
+    glColor3f(0.5f,1.0f,0.5f);
+    glScalef(0.045f,0.045f,0.045f);
+    glutSolidSphere(1.0f,10,10);
+    glPopMatrix();
+    glTranslatef(0.0,-0.25f,0.0);
+    anteHuge();
+}
+void hand(){
+    glPushMatrix();
+    glColor3f(0.5f,1.0f,1.0f);
+    glScalef(0.15f,0.15f,0.15f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+}
+void drawHuge(){
+    drawShoulder();
+    glTranslatef(0.0,-0.11f,0.0);
+    huge();
+    glTranslatef(0.0,-0.2f,0.0);
+    hand();
+}
+void drawLegDeslocated(GLfloat x){
+    glTranslatef(x,0.0,0.0);
+    glPushMatrix();
+    anteHuge();
+    glTranslatef(0.0,-0.3f,0.0);
+    glPushMatrix();
+    glColor3f(0.5f,1.0f,0.5f);
+    glScalef(0.075f,0.075f,0.075f);
+    glutSolidSphere(1.0f,10,10);
+    glPopMatrix();
+    glTranslatef(0.25,0.0,0.0);
+    glRotatef(90,0,0,1);
+    anteHuge();
+    glTranslatef(0.00f,-0.2f,0.0);
+  //  glTranslatef(0.2f,0.0,0.0);
+    hand();
+    glPopMatrix();
+}
+
+void drawLeg(){
+    huge();
+    glTranslatef(0.0,-0.2f,0.0);
+    hand();
+}
+void putHuges(){
+    glPushMatrix();
+    glTranslatef(-0.6f,0.0f,-0.01f);
+    drawHuge();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0.6f,0.0f,-0.01f);
+    drawHuge();
+    glPopMatrix();
+}
+void putLegs(){
+    glPushMatrix();
+    glTranslatef(-0.3f,-1.6f,-0.01f);
+    drawLeg();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0.3f,-1.6f,-0.01f);
+    drawLeg();
+    glPopMatrix();
+}
+int LoadGLTextures() // Load Bitmaps And Convert To Textures
+{
+    /* load an image file directly as a new OpenGL texture */
+    texture[0] = SOIL_load_OGL_texture
+        (
+        "media/text.bmp",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_INVERT_Y
+        );
+ 
+    if(texture[0] == 0)
+        return 0;
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+ 
+    return 1;                                        // Return Success
+}
+
 void pagina(){
     glPushMatrix();
     glColor3f(1.0, 1.0, 1.0); 
@@ -28,7 +141,6 @@ void capaLivro(float locate){
     glTranslatef(0.0,locate,0.0);
     glutSolidCube(1.0f);
     glPopMatrix();
-
 }
 void capaLivro2(float locate){
     glPushMatrix();
@@ -37,7 +149,6 @@ void capaLivro2(float locate){
     glTranslatef(0.0,locate,0.0);
     glutSolidCube(1.0f);
     glPopMatrix();
-
 }
 void colisaoBaixo(float bonecoY){
     if(bonecoY < 0.2){
@@ -78,6 +189,7 @@ void saltoFunc(){
             move+=flagSalto;
             glTranslatef(0.0,move,0.0);
         }else{
+            q = 0;
             salto = 0;
         }
     }else if(agacha == 1){
@@ -85,6 +197,7 @@ void saltoFunc(){
             move-=flagSalto;
             glTranslatef(0.0,move,0.0);
         }else{
+            q = 0;
             agacha = 0;
         }
     }else if (move < 0.005){
@@ -141,7 +254,6 @@ void Inicializa (void){
     // Habilita o depth-buffering
     glEnable(GL_DEPTH_TEST);
 }
-
 void estrada(){
     glPushMatrix();
     glColor3f(0.4, 0.2, 0.5); 
@@ -191,13 +303,39 @@ void barreiraAlto(float position){
 }
 void body(){
     glPushMatrix();
-    glColor3f(0.6, 0.2, 0.9); 
-    glRotatef(xRotated,1.0,0.0,0.0);
-    glRotatef(yRotated,0.0,1.0,0.0);
-    glScalef(0.3,5.0,3.0);
-    glTranslatef(0.0,0.0,-1.0);   
-    saltoFunc();
-    glutSolidCube(1.0f);
+    if(q == 0 && agacha != 1){
+        glRotatef(xRotated,1.0,0.0,0.0);
+        glRotatef(yRotated+90.0,0.0,1.0,0.0);
+        glTranslatef(0.0,1.7,-1.0);   
+        saltoFunc();
+        drawBody();
+        putHuges();
+        glTranslatef(0.0,0.5,0.0); 
+        putLegs(); 
+    }else if (agacha == 1){
+        glRotatef(zRotated,0.0,0.0,1.0);
+        glRotatef(xRotated,1.0,0.0,0.0);
+        glRotatef(yRotated+90.0,0.0,1.0,0.0);
+        glTranslatef(0.0,1.7,-1.0);   
+        saltoFunc();
+        drawBody();
+        putHuges();
+        glTranslatef(0.0,-1.2,0.0); 
+        drawLegDeslocated(0.25);
+        drawLegDeslocated(-0.25);
+    }else{
+        glRotatef(xRotated,1.0,0.0,0.0);
+        glRotatef(yRotated+90.0,0.0,1.0,0.0);
+        glTranslatef(0.0,1.7,-1.0);   
+        saltoFunc();
+        drawBody();
+        putHuges();
+        glTranslatef(0.0,-1.2,0.0); 
+        drawLegDeslocated(0.25);
+        drawLegDeslocated(-0.25);
+    }
+    
+    //drawLegDeslocated();
     glPopMatrix();
 }
 float * geraPosicao(){
@@ -228,8 +366,7 @@ void display(void){
     body();
     for(int i = 0;i<100;i++){
         if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
-            if(vetposicao[i]==0){     
-            	printf("oioi\n");       
+            if(vetposicao[i]==0){       
                 barreiraAlto(-i*40);
             }
             else{
@@ -247,12 +384,14 @@ void keyPressed(unsigned char key, int x, int y) {
       glutDestroyWindow(window); 
       exit(0);                   
     }else if(key == 97){
-        xRotated++;
+        zRotated++;
     }else if(key == 115){
         yRotated++;
     }else if(key == 110){
+        q = 1;
         salto = 1;
     }else if(key == 109){
+        q = 1;
         agacha = 1;
     }
 }
@@ -264,18 +403,15 @@ void reshapeFunc(int x, int y){
     glViewport(0,0,x,y);  
 }
 void idleFunc(void){
-     xRotated += 0.0;
-     yRotated += 0.0;
-     zRotated += 0.0;
-     if(flag == 0){
-        direction -= 0.05;
-    
+    xRotated += 0.0;
+    yRotated += 0.0;
+    zRotated += 0.0;
+    if(flag == 0){
+        int value = rand()%30;
+        direction -= 0.001*(float)value;
     }
     display();
-
 }
-
-
 int main (int argc, char **argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);  
@@ -287,6 +423,7 @@ int main (int argc, char **argv){
     move=0.0;
     salto = 0;
     agacha = 0;
+    q = 0;
     glClearColor(0.0,0.0,0.0,0.0);
     glutDisplayFunc(displayInit);
     glutReshapeFunc(reshapeFunc);
