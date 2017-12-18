@@ -6,9 +6,9 @@
 #include "SOIL.h"
 #include <time.h>
 #define ESCAPE 27 //Valor em ASCII do Esc
-#define QTDOBJ 100
+#define QTDOBJ 5
 int window;
-int texture[2];
+int texture[5];
 GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.001,x;
 float *vetposicao;
 GLint salto,agacha,q;
@@ -117,10 +117,19 @@ int LoadGLTextures() // Load Bitmaps And Convert To Textures
         SOIL_CREATE_NEW_ID,
         SOIL_FLAG_INVERT_Y
         );
- 
     if(texture[0] == 0)
         return 0;
+     texture[1] = SOIL_load_OGL_texture
+        (
+        "media/top.bmp",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_INVERT_Y
+        );
+    if(texture[1] == 0)
+        return 0;
     glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
  
@@ -137,10 +146,10 @@ void InitGL(int Width, int Height){          // We call this right after our Ope
     //gluPerspective(45.0f,(GLfloat)Width/(GLfloat)Height,0.01f,100.0f);
     glMatrixMode(GL_MODELVIEW);
 }
-void drawfinal(){
+void drawfinal(int id){
    glEnable(GL_TEXTURE_2D);
 
-    glBindTexture(GL_TEXTURE_2D, texture[0]);   // choose the texture to use.
+    glBindTexture(GL_TEXTURE_2D, texture[id]);   // choose the texture to use.
     glTranslatef(0.0f,0.0f,-10.0f);              // move 5 units into the screen.
 
     glBegin(GL_QUADS);
@@ -424,7 +433,7 @@ void displayInit(){
     glClear(GL_COLOR_BUFFER_BIT);
     srand((unsigned)time(NULL));
     glLoadIdentity();
-    drawfinal();
+    drawfinal(0);
     vetposicao = geraPosicao();
     glTranslatef(0.0,0.0,-10.0);
     estrada();
@@ -438,7 +447,7 @@ void display(void){
     int i;
     if (flag == 0){
         glColor3f(1.0f,1.0f,1.0f);
-        drawfinal();
+        drawfinal(0);
         estrada();
         body();
         for(i = 0;i<QTDOBJ;i++){
@@ -456,9 +465,15 @@ void display(void){
             barreiraFim(-i*40);
         }
     }else if (flag == 1){
-        glClearColor(0.0f,0.0f,0.0f,0.0f);
+        glLoadIdentity();
+        glTranslatef(0.0f,0.0f,-11.0f);              // move 5 units into the screen.
+        glColor3f(1.0f,1.0f,1.0f);
+        drawfinal(1);
     }else{
-        glClearColor(1.0f,0.0f,0.0f,1.0f);
+        glLoadIdentity();
+        glTranslatef(0.0f,0.0f,-11.0f);              // move 5 units into the screen.
+        glColor3f(1.0f,1.0f,1.0f);
+        drawfinal(1);
     }
   	//barreiraAlto(0);*/
     glFlush();        
@@ -500,7 +515,7 @@ void idleFunc(void){
 int main (int argc, char **argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);  
-    glutInitWindowSize(600,600);
+    glutInitWindowSize(700,500);
     glutCreateWindow("TUPBOY SIMULATOR");
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     xRotated = yRotated = zRotated = 30.0;
@@ -512,7 +527,7 @@ int main (int argc, char **argv){
     glutDisplayFunc(displayInit);
     glutReshapeFunc(reshapeFunc);
     glutIdleFunc(idleFunc);
-    InitGL(600,600);
+    InitGL(700,500);
     glutKeyboardFunc(&keyPressed);
     Inicializa();
     glutMainLoop();
