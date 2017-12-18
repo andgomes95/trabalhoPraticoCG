@@ -6,6 +6,7 @@
 #include "SOIL.h"
 #include <time.h>
 #define ESCAPE 27 //Valor em ASCII do Esc
+#define QTDOBJ 100
 int window;
 int texture[2];
 GLfloat xRotated , yRotated, zRotated,move,flagSalto=0.001;
@@ -120,6 +121,9 @@ void colisaoBaixo(float bonecoY){
     if(bonecoY < 0.2){
         flag=1;
     }
+}
+void colisaoFim(float bonecoY){
+    flag=2;
 }
 void colisaoAlto(float bonecoY){
     if(bonecoY > -0.2){
@@ -248,6 +252,19 @@ void barreiraChao(float position){
         colisaoBaixo(move);
     }
 }
+void barreiraFim(float position){
+    glPushMatrix();
+    glColor3f(0.0, 0.2, 0.9); 
+    glRotatef(xRotated,1.0,0.0,0.0);
+    glRotatef(yRotated,0.0,1.0,0.0);
+    glScalef(0.3,1.0,3.5);
+    glTranslatef(direction-position,0.0,-0.5);   
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    if(direction-position > -4.525 && direction-position < -4.425){
+        colisaoFim(move);
+    }
+}
 void barreiraAlto(float position){
     glPushMatrix();
     glColor3f(0.0, 0.2, 0.9); 
@@ -276,8 +293,8 @@ void body(){
     glPopMatrix();
 }
 float * geraPosicao(){
-    float *posicao = (float*)malloc(100* sizeof(float));
-    for (int i = 0; i < 100; i++){
+    float *posicao = (float*)malloc(QTDOBJ* sizeof(float));
+    for (int i = 0; i < QTDOBJ; i++){
         posicao[i] = rand()%2;;//(float)(rand()%160);
         //printf("%f\t",posicao[i]);
     }
@@ -287,6 +304,7 @@ float * geraPosicao(){
 void displayInit(){
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
+    srand((unsigned)time(NULL));
     glLoadIdentity();
     drawfinal();
     vetposicao = geraPosicao();
@@ -299,20 +317,30 @@ void display(void){
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    glColor3f(1.0f,1.0f,1.0f);
-    drawfinal();
-    estrada();
-    body();
-    for(int i = 0;i<100;i++){
-        if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
-            if(vetposicao[i]==0){       
-                barreiraAlto(-i*40);
-            }
-            else{
-                barreiraChao(-i*40);
-            }
+    int i;
+    if (flag == 0){
+        glColor3f(1.0f,1.0f,1.0f);
+        drawfinal();
+        estrada();
+        body();
+        for(i = 0;i<QTDOBJ;i++){
+            if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
+                if(vetposicao[i]==0){       
+                    barreiraAlto(-i*40);
+                }
+                else{
+                    barreiraChao(-i*40);
+                }
 
+            }
         }
+        if(direction+i*40 < 20.0 && direction+i*40 > -20.0){
+            barreiraFim(-i*40);
+        }
+    }else if (flag == 1){
+        glClearColor(0.0f,0.0f,0.0f,0.0f);
+    }else{
+        glClearColor(1.0f,0.0f,0.0f,1.0f);
     }
   	//barreiraAlto(0);*/
     glFlush();        
