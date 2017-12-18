@@ -128,6 +128,15 @@ int LoadGLTextures() // Load Bitmaps And Convert To Textures
         );
     if(texture[1] == 0)
         return 0;
+    texture[2] = SOIL_load_OGL_texture
+        (
+        "media/guit.bmp",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_INVERT_Y
+        );
+    if(texture[2] == 0)
+        return 0;
     glBindTexture(GL_TEXTURE_2D, texture[0]);
     glBindTexture(GL_TEXTURE_2D, texture[1]);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -468,7 +477,7 @@ void display(void){
         glLoadIdentity();
         glTranslatef(0.0f,0.0f,-11.0f);              // move 5 units into the screen.
         glColor3f(1.0f,1.0f,1.0f);
-        drawfinal(1);
+        drawfinal(2);
     }else{
         glLoadIdentity();
         glTranslatef(0.0f,0.0f,-11.0f);              // move 5 units into the screen.
