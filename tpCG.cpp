@@ -6,7 +6,7 @@
 #include "SOIL.h"
 #include <time.h>
 #define ESCAPE 27 //Valor em ASCII do Esc
-#define QTDOBJ 5
+#define QTDOBJ 2
 #define FLAGSALTO 0.0005
 #define VELOCIDADE 1
 int window;
@@ -375,7 +375,7 @@ void barreiraFim(float position){
     glTranslatef(direction-position,0.0,-0.5);   
     glutSolidCube(1.0f);
     glPopMatrix();
-    if(direction-position > -4.525 && direction-position < -4.425){
+    if(direction-position > -1.0 && direction-position < -0){
         colisaoFim(move);
     }
 }
@@ -391,7 +391,7 @@ void barreiraAlto(float position){
     capaLivro(3.0);
     capaLivro2(3.0);
     glPopMatrix();
-    if(direction-position > -1.825 && direction-position < -1.725){
+    if(direction-position > -1.325 && direction-position < -1.025){
         colisaoAlto(move);
     }
 }
