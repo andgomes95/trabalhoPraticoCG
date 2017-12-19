@@ -248,7 +248,9 @@ void barraHorizontal(){
     //glRotatef(xRotated,1.0,0.0,0.0);
     //glRotatef(yRotated,0.0,1.0,0.0);
     glScalef(0.5,0.5,10.0);
-    glutSolidCube(1.0f);
+    GLUquadricObj *Cylinder; // Create pointer for our cylinder
+     Cylinder = gluNewQuadric();
+    gluCylinder( Cylinder, 0.1, 0.1, 0.1, 50, 50 );
     glPopMatrix();
 }
 void barraVertical(){
@@ -258,7 +260,9 @@ void barraVertical(){
     //glRotatef(yRotated,0.0,1.0,0.0);
     glRotatef(-90,1.0,0.0,0.0);
     glScalef(0.5,0.5,1.0);
-    glutSolidCube(1.0f);
+    GLUquadricObj *Cylinder; // Create pointer for our cylinder
+     Cylinder = gluNewQuadric();
+gluCylinder( Cylinder, 0.1, 0.1, 0.1, 50, 50 );
     glPopMatrix();
 }
 void saltoFunc(){
